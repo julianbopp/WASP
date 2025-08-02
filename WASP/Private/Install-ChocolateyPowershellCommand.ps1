@@ -1,4 +1,5 @@
-function Install-ChocolateyPowershellCommand() {
+function Install-ChocolateyPowershellCommand()
+{
     <#
     .SYNOPSIS
         This function overrides the Install-ChocolateyPowershellCommand function and receives an url and checksums to download the package binary.
@@ -32,9 +33,11 @@ function Install-ChocolateyPowershellCommand() {
     $downloadFilePath = Join-Path (Join-Path (Get-Item -Path ".\").FullName "tools") "$($packageName)Install.ps1"
 
     # Check the url found above ($url or $url64bit) and download the file
-    if ($null -ne $url) {
+    if ($null -ne $url)
+    {
         $urlFound = $url
-    } elseif ($null -ne $url64bit) {
+    } elseif ($url64bit -ne '' -or $null -ne $url64bit)
+    {
         $urlFound = $url64bit
     }    
 
@@ -43,7 +46,8 @@ function Install-ChocolateyPowershellCommand() {
     $defaultFileName = $urlFound.Split("/")[-1]
     $fileName = Get-WebFileName -url $urlFound -defaultName $defaultFileName
 
-    if ($FileItem.Extension -eq '.zip') {
+    if ($FileItem.Extension -eq '.zip')
+    {
         # If it is a zip package the file param should be provided but not as fullpath, just the main packages name
         $FileName = $file
     }
@@ -51,7 +55,8 @@ function Install-ChocolateyPowershellCommand() {
     Edit-ChocolateyInstaller -ToolsPath (Join-Path (Get-Item -Path ".\").FullName "tools") -FileName $fileName
     New-Item -Path (Join-Path (Join-Path (Get-Item -Path ".\").FullName "tools") "overridden.info") -Force
 
-    if ($url -or $url64bit) {
+    if ($url -or $url64bit)
+    {
         $null = Get-ChocolateyWebFile -PackageName $packageName `
             -FileFullPath $downloadFilePath `
             -Url $url `
@@ -63,7 +68,8 @@ function Install-ChocolateyPowershellCommand() {
             -Options $options `
             -GetOriginalFileName `
             -ForceDownload
-    } else {
+    } else
+    {
         Write-Log "No url in install script of $packageName found. Skip."
     }
     exit 0

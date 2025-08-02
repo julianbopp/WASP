@@ -1,4 +1,5 @@
-function Install-ChocolateyInstallPackage() {
+function Install-ChocolateyInstallPackage()
+{
     <#
     .SYNOPSIS
         This function overrides the Install-ChocolateyInstallPackage function and receives an optional filepath. It checks if the binary already exists or if it has to be downloaded first.
@@ -30,16 +31,18 @@ function Install-ChocolateyInstallPackage() {
         [parameter(ValueFromRemainingArguments = $true)][Object[]] $ignoredArguments
     )
 
-    if ($file64) {
+    if ($file64)
+    {
         # We got a valid paramter for our file64 Path
         # Next check whether the file exists
         Write-Log "$($packageName): Valid parameter for file64."
-        if (Test-Path $file64) {
+        if (Test-Path $file64)
+        {
             # The parameter we got is valid AND the binary exists.
             # This means we can ignore the installation request.
             Write-Log "$($packageName): Binary exists."
-        }
-        else {
+        } else
+        {
             # We need to download the file, by searching the url in verification.txt
             Write-Log "$($packageName): Getting url for file64 parameter from VERIFICATION.txt"
             $searchArgs = @{
@@ -47,7 +50,8 @@ function Install-ChocolateyInstallPackage() {
                 searchFor64BitUrl = $True
             }
             $url64bit = Get-UrlFromVerificationFile @searchArgs
-            if (-Not $url64bit) {
+            if (-Not $url64bit)
+            {
                 Write-Log "$($packageName): No url for 64bit file found! Skip." -Severity 3
                 exit 1
             }
@@ -57,17 +61,18 @@ function Install-ChocolateyInstallPackage() {
             }
             $checksum64 = Get-ChecksumFromVerificationFile @searchArgs
         }
-    }
-    elseif ($file) {
+    } elseif ($file)
+    {
         # We got a valid paramter for our file Path
         # Next check whether the file exists
         Write-Log "$($packageName): Valid parameter for file (32bit)."
-        if (Test-Path $file) {
+        if (Test-Path $file)
+        {
             # The parameter we got is valid AND the binary exists.
             # This means we can ignore the installation request.
             Write-Log "$($packageName): Binary exists, ignoring installation request."
-        }
-        else {
+        } else
+        {
             # We need to download the file, by searching the url in verification.txt
             Write-Log "$($packageName): Check for a 64bit url in VERIFICATION.txt"
             $searchArgs = @{
@@ -75,14 +80,16 @@ function Install-ChocolateyInstallPackage() {
                 searchFor64BitUrl = $True
             }
             $url64bit = Get-UrlFromVerificationFile @searchArgs
-            if (-Not $url64bit) {
+            if (-Not $url64bit)
+            {
                 Write-Log "$($packageName): No url for 64bit file found! Look for 32bit from VERIFICATION.txt."
                 $searchArgs = @{
                     searchFor32BitUrl = $True
                     searchFor64BitUrl = $False
                 }
                 $url = Get-UrlFromVerificationFile @searchArgs
-                if (-Not $url) {
+                if (-Not $url)
+                {
                     Write-Log "$($packageName): No url for 32bit file found! Skip" -Severity 3
                     exit 1
                 }
@@ -91,8 +98,8 @@ function Install-ChocolateyInstallPackage() {
                     searchFor64BitChecksum = $False
                 }
                 $checksum = Get-ChecksumFromVerificationFile @searchArgs
-            }
-            else {
+            } else
+            {
                 $searchArgs = @{
                     searchFor32BitChecksum = $False
                     searchFor64BitChecksum = $True
@@ -100,8 +107,8 @@ function Install-ChocolateyInstallPackage() {
                 $checksum64 = Get-ChecksumFromVerificationFile @searchArgs
             }
         }
-    }
-    else {
+    } else
+    {
         # We got no file/file64 parameter.
         #This means we need to get the url from VERIFICATION.txt and download
         Write-Log "$($packageName): Get url from VERIFICATION.txt"
@@ -110,39 +117,44 @@ function Install-ChocolateyInstallPackage() {
             searchFor64BitUrl = $True
         }
         $url64bit = Get-UrlFromVerificationFile @searchArgs
-        if (-Not $url64bit) {
+        if (-Not $url64bit)
+        {
             Write-Log "$($packageName): No url64bit for file found! Searching for url32bit"
             $searchArgs = @{
                 searchFor32BitUrl = $True
                 searchFor64BitUrl = $False
             }
             $url = Get-UrlFromVerificationFile @searchArgs
-            if (-Not $url) {
+            if (-Not $url)
+            {
                 Write-Log "$($packageName): No urls found. Skip." -Severity 3
                 exit 1
             }
         }
-        if ($url64bit) {
+        if ($url64bit)
+        {
             # We found a 64bit url which means we need to search for a 64bit checksum
             $searchArgs = @{
                 searchFor32BitChecksum = $False
                 searchFor64BitChecksum = $True
             }
             $checksum64 = Get-ChecksumFromVerificationFile @searchArgs
-            if (-Not $checksum64) {
+            if (-Not $checksum64)
+            {
                 # In case we couldn't find a 64bit checksum we try to find a 32bit one
                 Write-Log "$($packageName): No checksum for 64bit found." -Severity 3
                 exit 1
             }
-        }
-        else {
+        } else
+        {
             # We found a 32bit url which means we need to search for a 32bit checksum
             $searchArgs = @{
                 searchFor32BitChecksum = $True
                 searchFor64BitChecksum = $False
             }
             $checksum = Get-ChecksumFromVerificationFile @searchArgs
-            if (-Not $checksum) {
+            if (-Not $checksum)
+            {
                 Write-Log "$($packageName): No checksum for 32bit found." -Severity 3
                 exit 1
             }
@@ -150,9 +162,11 @@ function Install-ChocolateyInstallPackage() {
     }
 
     # Check the url found above ($url or $url64bit) and download the file
-    if ($null -ne $url) {
+    if ($null -ne $url)
+    {
         $urlFound = $url
-    } elseif ($null -ne $url64bit) {
+    } elseif ($ulr64bit -ne '' -or $null -ne $url64bit)
+    {
         $urlFound = $url64bit
     }    
 
@@ -162,7 +176,8 @@ function Install-ChocolateyInstallPackage() {
     $fileName = Get-WebFileName -url $urlFound -defaultName $defaultFileName
     Edit-ChocolateyInstaller -ToolsPath (Join-Path (Get-Item -Path ".\").FullName "tools") -FileName $fileName
 
-    if ($url -or $url64bit) {
+    if ($url -or $url64bit)
+    {
         $downloadFilePath = Join-Path (Join-Path (Get-Item -Path ".\").FullName "tools") "$($packageName)Install.$fileType"
         $checksumType = Get-ChecksumTypeFromVerificationFile -Checksums $checksum, $checksum64
         $checksumType64 = $checksumType

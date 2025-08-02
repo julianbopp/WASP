@@ -1,4 +1,5 @@
-function Install-ChocolateyZipPackage() {
+function Install-ChocolateyZipPackage()
+{
     <#
     .SYNOPSIS
         This function overrides the Install-ChocolateyZipPackage function and receives a optional filepath or an url to a zip file. Depending on the input the functions downloads and/or unzips the binaries.
@@ -41,18 +42,21 @@ function Install-ChocolateyZipPackage() {
     $downloadFilePath = Join-Path (Join-Path (Get-Item -Path ".\").FullName "tools") "$($packageName)Install.$fileType"
 
     # Check if url and checksum is given as parameters.
-    if (($url -and $checksum) -or (($url64 -and $checksum64))) {
+    if (($url -and $checksum) -or (($url64 -and $checksum64)))
+    {
         Write-Log "$($packageName): URL and CHECKSUM found in chocolateyInstall.ps1."
-    }
-    else {
+    } else
+    {
         Write-Log "$($packageName): URL and CHECKSUM not found in chocolateyInstall.ps1. Looking for VERIFICATION.txt"
-        if ($url -eq '' -or $url -eq $null) {
-            if ($file -and (Test-Path $file)) {
+        if ($url -eq '' -or $url -eq $null)
+        {
+            if ($file -and (Test-Path $file))
+            {
                 # first check whether we already have our zip file
                 Write-Log "$($packageName): The zip32 package is present and no download is needed."
                 $url = $file
-            }
-            else {
+            } else
+            {
                 # we do not have the file, so we need to get the download url from
                 # VERIFICATION.txt
                 Write-Log "$($packageName): Getting url for file from VERIFICATION.txt"
@@ -68,14 +72,15 @@ function Install-ChocolateyZipPackage() {
                 }
                 $checksum = Get-ChecksumFromVerificationFile @searchArgs
             }
-        }
-        elseif ($url64bit -eq '' -or $url64bit -eq $null) {
-            if ($file64 -and (Test-Path $file64)) {
+        } elseif ($url64bit -eq '' -or $url64bit -eq $null)
+        {
+            if ($file64 -and (Test-Path $file64))
+            {
                 # first check whether we already have our zip file
                 Write-Log "$($packageName): The zip64 package is already present and no download is needed."
                 $url64bit = $file64
-            }
-            else {
+            } else
+            {
                 # we do not have the file, so we need to get the download url from
                 # VERIFICATION.txt
                 Write-Log "$($packageName): Getting url for file64 from VERIFICATION.txt"
@@ -94,32 +99,37 @@ function Install-ChocolateyZipPackage() {
         }
     }
     # Check if any urls were found
-    if (($url -and $checksum) -or ($url64bit -and $checksum64)) {
+    if (($url -and $checksum) -or ($url64bit -and $checksum64))
+    {
         Write-Log "$($packageName): Urls and checksums found!" -Severity 1
-    }
-    else {
+    } else
+    {
         Write-Log "$($packageName): Urls and checksums not found! Skip." -Severity 3
         exit 1
     }
 
-    if ($checksumType -or $checksumType64) {
+    if ($checksumType -or $checksumType64)
+    {
         # Checksum was defined in install.ps1 script as parameter
-        if ($checksumType) {
+        if ($checksumType)
+        {
             $checksumType64 = $checksumType
-        }
-        else {
+        } else
+        {
             $checksumType = $checksumType64
         }
-    }
-    else {
+    } else
+    {
         $checksumType = Get-ChecksumTypeFromVerificationFile -Checksums $checksum, $checksum64
         $checksumType64 = $checksumType
     }
 
     # Check the url found above ($url or $url64bit) and download the file
-    if ($null -ne $url) {
+    if ($null -ne $url)
+    {
         $urlFound = $url
-    } elseif ($null -ne $url64bit) {
+    } elseif ($url64bit -ne '' -or $null -ne $url64bit)
+    {
         $urlFound = $url64bit
     }    
 
@@ -131,8 +141,10 @@ function Install-ChocolateyZipPackage() {
     $unzipLocation = (Join-Path (Get-Item -Path ".\").FullName "tools")
     Edit-ChocolateyInstaller -ToolsPath (Join-Path (Get-Item -Path ".\").FullName "tools") -FileName $fileName -UnzipPath $unzipLocation
 
-    try {
-        if (-Not $remoteFile) {
+    try
+    {
+        if (-Not $remoteFile)
+        {
             $null = Get-ChocolateyWebFile -PackageName $packageName `
                 -FileFullPath $downloadFilePath `
                 -Url $url `
@@ -145,8 +157,8 @@ function Install-ChocolateyZipPackage() {
                 -GetOriginalFileName `
                 -ForceDownload
         }
-    }
-    catch {
+    } catch
+    {
         Write-Log ($($packageName) + ":" + " " + $_.Exception.toString()) -Severity 3
         exit 1
     }
